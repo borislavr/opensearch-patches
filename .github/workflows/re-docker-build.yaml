@@ -64,6 +64,7 @@ jobs:
 
       - name: "Push default tag"
         run: |
+          echo "docker buildx imagetools create --tag ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,} ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}"
           docker buildx imagetools create --tag ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,} ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}
 
   docker-image-tests:
