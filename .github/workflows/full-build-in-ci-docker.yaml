@@ -172,7 +172,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: netcracker/opensearch-patches/.github/workflows/re-docker-build.yaml@main
+    uses: borislavr/opensearch-patches/.github/workflows/re-docker-build.yaml@main
     needs: build-in-docker
     with:
       opensearch-tag: ${{ inputs.opensearch-tag }}
