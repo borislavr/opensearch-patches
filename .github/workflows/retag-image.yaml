@@ -1,0 +1,26 @@
+on:
+  workflow_dispatch:
+    inputs:
+      new-tag:
+        type: string
+        required: true
+        default: "new-tag"
+      image:
+        type: string
+        required: true
+        default: "ghcr.io/borislavr/opensearch"
+      old-tag:
+        type: string
+        required: true
+        default: "2.19.3"
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  re-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-tag image
+        run: |
+          regctl image copy --verbosity info ${{ inputs.image }}:${{ old-tag }} ${{ inputs.image }}:${{ inputs.new-tag }}
