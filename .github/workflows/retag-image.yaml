@@ -23,4 +23,5 @@ jobs:
     steps:
       - name: Re-tag image
         run: |
+          sudo snap install regclient 
           regctl image copy --verbosity info ${{ inputs.image }}:${{ inputs.old-tag }} ${{ inputs.image }}:${{ inputs.new-tag }}
