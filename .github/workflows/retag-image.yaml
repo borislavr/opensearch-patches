@@ -29,6 +29,9 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Re-tag image
+        env:
+          token: ${{ secrets.GITHUB_TOKEN }}
         run: |
           sudo snap install regclient 
+          echo "${token}" | regctl registry login ghcr.io -u "${GITHUB_REPOSITORY_OWNER}" --pass-stdin
           regctl image copy --verbosity info ${{ inputs.image }}:${{ inputs.old-tag }} ${{ inputs.image }}:${{ inputs.new-tag }}
