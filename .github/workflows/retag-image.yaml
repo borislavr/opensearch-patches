@@ -23,4 +23,4 @@ jobs:
     steps:
       - name: Re-tag image
         run: |
-          regctl image copy --verbosity info ${{ inputs.image }}:${{ old-tag }} ${{ inputs.image }}:${{ inputs.new-tag }}
+          regctl image copy --verbosity info ${{ inputs.image }}:${{ inputs.old-tag }} ${{ inputs.image }}:${{ inputs.new-tag }}
