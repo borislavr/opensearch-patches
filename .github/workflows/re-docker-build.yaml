@@ -68,7 +68,14 @@ jobs:
         run: |
           sudo snap install regclient 
           echo "${token}" | regctl registry login ghcr.io -u "${GITHUB_REPOSITORY_OWNER}" --pass-stdin
-          regctl image copy --verbosity info ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag} ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,}
+          echo """
+          regctl image copy --verbosity info \
+          "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}" \
+          "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,}"
+          """
+          regctl image copy --verbosity info \
+          "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}" \
+          "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,}"
 
   docker-image-tests:
     name: "${{ matrix.platform.architecture }} Docker Image Tests"
