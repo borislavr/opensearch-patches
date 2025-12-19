@@ -62,23 +62,9 @@ jobs:
           chmod +x ./build-image-multi-arch.sh
           ./build-image-multi-arch.sh -v ${opensearch_tag} -f ./dockerfiles/opensearch.al2.dockerfile -p opensearch -a "arm64,x64" -t "${TARFILE}" -r ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch
 
-  push-default-tag:
-    name: "Push Default Docker Tag"
-    needs: build-and-push-docker
-    strategy:
-      matrix:
-        platform:
-          - name: ubuntu-24.04-arm
-            architecture: arm64
-          - name: ubuntu-latest
-            architecture: amd64
-    runs-on: ${{ matrix.platform.name }}
-    steps:
       - name: "Push default tag"
         run: |
-          docker pull ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}
-          docker tag ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag} ${default_custom_tag,,}
-          docker push ${default_custom_tag,,}
+          docker buildx imagetools create --tag ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,} ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}
 
   docker-image-tests:
     name: "${{ matrix.platform.architecture }} Docker Image Tests"
