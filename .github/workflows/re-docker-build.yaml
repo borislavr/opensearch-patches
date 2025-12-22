@@ -14,7 +14,8 @@ on:
             required: false
             default: true
 env:
-  default_custom_tag: "ghcr.io/${{ github.repository_owner }}/opensearch:${{ inputs.opensearch-tag }}-custom-patches"
+  custom_image_name: "ghcr.io/${{ github.repository_owner }}/opensearch"
+  default_custom_tag: "${{ inputs.opensearch-tag }}-custom-patches"
   opensearch_tag: "${{ inputs.opensearch-tag }}"
 jobs:
   build-and-push-docker:
@@ -60,22 +61,32 @@ jobs:
           cd ${GITHUB_WORKSPACE}/opensearch-build/docker/release
           sed -i 's/TARBALL=`realpath $OPTARG`/TARBALL=`realpath -z $OPTARG`/' ./build-image-multi-arch.sh
           chmod +x ./build-image-multi-arch.sh
-          ./build-image-multi-arch.sh -v ${opensearch_tag} -f ./dockerfiles/opensearch.al2.dockerfile -p opensearch -a "arm64,x64" -t "${TARFILE}" -r ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch
+          ./build-image-multi-arch.sh -v ${default_custom_tag,,} -f ./dockerfiles/opensearch.al2.dockerfile -p opensearch -a "arm64,x64" -t "${TARFILE}" -r ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch
 
-      - name: Re-tag image
-        env:
-          token: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          sudo snap install regclient 
-          echo "${token}" | regctl registry login ghcr.io -u "${GITHUB_REPOSITORY_OWNER}" --pass-stdin
-          echo """
-          regctl image copy --verbosity info \
-          "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}" \
-          "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,}"
-          """
-          regctl image copy --verbosity info \
-          "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}" \
-          "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,}"
+  # re-tag-image:
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   uses: borislavr/opensearch-patches/.github/workflows/retag-image.yaml@main
+  #   with:
+  #     new-tag: 
+  #     image:
+  #     old-tag:
+
+      # - name: Re-tag image
+      #   env:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     sudo snap install regclient 
+      #     echo "${token}" | regctl registry login ghcr.io -u "${GITHUB_REPOSITORY_OWNER}" --pass-stdin
+      #     echo """
+      #     regctl image copy --verbosity info \
+      #     "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}" \
+      #     "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,}"
+      #     """
+      #     regctl image copy --verbosity info \
+      #     "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${opensearch_tag}" \
+      #     "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opensearch:${default_custom_tag,,}"
 
   docker-image-tests:
     name: "${{ matrix.platform.architecture }} Docker Image Tests"
@@ -96,8 +107,8 @@ jobs:
             echo "Docker tests are disabled. Skipping."
             exit 0
           fi
-          echo "Running tests on Docker image ${default_custom_tag,,}..."
-          docker run -d --rm --name ops-test -p 9200:9200 -p 9600:9600 -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=InItIaL$tr0ngPa$$w0rd -e "discovery.type=single-node" ${default_custom_tag,,}
+          echo "Running tests on Docker image ${custom_image_name}:${default_custom_tag,,}..."
+          docker run -d --rm --name ops-test -p 9200:9200 -p 9600:9600 -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=InItIaL$tr0ngPa$$w0rd -e "discovery.type=single-node" ${custom_image_name}:${default_custom_tag,,}
           sleep 120
           docker logs ops-test | grep "Cluster health status changed from \[YELLOW\] to \[GREEN\]"
           echo "Docker image test passed successfully."

@@ -15,6 +15,21 @@ on:
         type: string
         required: true
         default: "2.19.3"
+  workflow_call:
+    inputs:
+      new-tag:
+        type: string
+        required: true
+        default: "new-tag"
+      image:
+        type: string
+        required: true
+        default: "ghcr.io/borislavr/opensearch"
+      old-tag:
+        type: string
+        required: true
+        default: "2.19.3"
+
 permissions:
   contents: read
   packages: write
